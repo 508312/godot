@@ -4253,7 +4253,7 @@ void TileSet::_validate_property(PropertyInfo &p_property) const {
 			} else { // TILE_OFFSET_AXIS_VERTICAL
 				side_size = tile_size.x;
 			}
-			p_property.hint_string = vformat("0.5,%f,0.5,,or_less,or_greater,suffix:px", side_size - 0.5);
+			p_property.hint_string = vformat("0.5,%f,0.5,or_less,or_greater,suffix:px", side_size - 0.5);
 		}
 	}
 }
