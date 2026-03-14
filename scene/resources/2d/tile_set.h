@@ -427,8 +427,8 @@ public:
 	TileOffsetAxis get_tile_offset_axis() const;
 	void set_tile_size(Size2i p_size);
 	Size2i get_tile_size() const;
-	void set_hexagon_flat_side_modifier(float p_flat_side_modifier);
-	float get_hexagon_flat_side_modifier() const;
+	void set_hexagon_tile_overlap(float p_tile_overlap);
+	float get_hexagon_tile_overlap() const;
 	void set_hexagon_flat_side_length(float p_flat_side_length);
 	float get_hexagon_flat_side_length() const;
 
