@@ -4246,7 +4246,7 @@ void TileSet::_validate_property(PropertyInfo &p_property) const {
 			} else { // TILE_OFFSET_AXIS_VERTICAL
 				side_size = tile_size.x;
 			}
-			p_property.hint_string = vformat("0.5,%f,0.5,suffix:px", side_size - 0.5);
+			p_property.hint_string = vformat("0.1,%f,0.1,suffix:px", side_size - 0.1);
 		}
 	}
 }
@@ -4301,8 +4301,8 @@ void TileSet::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_layout", PROPERTY_HINT_ENUM, "Stacked,Stacked Offset,Stairs Right,Stairs Down,Diamond Right,Diamond Down"), "set_tile_layout", "get_tile_layout");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_offset_axis", PROPERTY_HINT_ENUM, "Horizontal Offset,Vertical Offset"), "set_tile_offset_axis", "get_tile_offset_axis");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "tile_size", PROPERTY_HINT_NONE, "suffix:px"), "set_tile_size", "get_tile_size");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "flat_side_length", PROPERTY_HINT_RANGE, "0.5,15.5,0.5,suffix:px", PROPERTY_USAGE_EDITOR), "set_hexagon_flat_side_length", "get_hexagon_flat_side_length");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "hexagon_tile_overlap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_STORAGE), "set_hexagon_tile_overlap", "get_hexagon_tile_overlap");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "flat_side_length", PROPERTY_HINT_RANGE, "0.1,15.9,0.1,suffix:px", PROPERTY_USAGE_EDITOR), "set_hexagon_flat_side_length", "get_hexagon_flat_side_length");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "hexagon_tile_overlap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "set_hexagon_tile_overlap", "get_hexagon_tile_overlap");
 
 	// Rendering.
 	ClassDB::bind_method(D_METHOD("set_uv_clipping", "uv_clipping"), &TileSet::set_uv_clipping);
