@@ -395,10 +395,10 @@ private:
 	RBMap<Array, Array> alternative_level_proxies;
 
 	// Internal Accessors
-	void _set_hexagon_tile_overlap(float p_tile_overlap);
-	float _get_hexagon_tile_overlap() const;
 
 	// Helpers
+	void _set_hexagon_flat_side_length(float p_flat_side_length);
+	float _get_hexagon_flat_side_length() const;
 	float _get_tile_overlap() const;
 
 	Vector<Point2> _get_square_terrain_polygon(Vector2i p_size);
@@ -431,8 +431,8 @@ public:
 	TileOffsetAxis get_tile_offset_axis() const;
 	void set_tile_size(Size2i p_size);
 	Size2i get_tile_size() const;
-	void set_hexagon_flat_side_length(float p_flat_side_length);
-	float get_hexagon_flat_side_length() const;
+	void set_hexagon_tile_overlap(float p_tile_overlap);
+	float get_hexagon_tile_overlap() const;
 
 	// -- Sources management --
 	int get_next_source_id() const;

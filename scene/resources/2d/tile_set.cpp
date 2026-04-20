@@ -409,36 +409,36 @@ Size2i TileSet::get_tile_size() const {
 	return tile_size;
 }
 
-void TileSet::set_hexagon_flat_side_length(float p_flat_side_length) {
-	int side_size;
-	if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
-		side_size = tile_size.y;
-	} else { // TILE_OFFSET_AXIS_VERTICAL
-		side_size = tile_size.x;
-	}
-
-	float overlap = (1 - p_flat_side_length / side_size) / 2;
-	_set_hexagon_tile_overlap(overlap);
-}
-float TileSet::get_hexagon_flat_side_length() const {
-	int side_size;
-	if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
-		side_size = tile_size.y;
-	} else { // TILE_OFFSET_AXIS_VERTICAL
-		side_size = tile_size.x;
-	}
-	return (1 - hexagon_tile_overlap * 2) * side_size;
-}
-
-void TileSet::_set_hexagon_tile_overlap(float p_tile_overlap) {
+void TileSet::set_hexagon_tile_overlap(float p_tile_overlap) {
 	hexagon_tile_overlap = p_tile_overlap;
 
 	terrain_bits_meshes_dirty = true;
 	tile_meshes_dirty = true;
 	emit_changed();
 }
-float TileSet::_get_hexagon_tile_overlap() const {
+float TileSet::get_hexagon_tile_overlap() const {
 	return hexagon_tile_overlap;
+}
+
+void TileSet::_set_hexagon_flat_side_length(float p_flat_side_length) {
+	int side_size;
+	if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
+		side_size = tile_size.y;
+	} else { // TILE_OFFSET_AXIS_VERTICAL
+		side_size = tile_size.x;
+	}
+
+	float overlap = (1.0f - p_flat_side_length / side_size) / 2.0f;
+	set_hexagon_tile_overlap(overlap);
+}
+float TileSet::_get_hexagon_flat_side_length() const {
+	int side_size;
+	if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
+		side_size = tile_size.y;
+	} else { // TILE_OFFSET_AXIS_VERTICAL
+		side_size = tile_size.x;
+	}
+	return (1.0f - hexagon_tile_overlap * 2.0f) * side_size;
 }
 
 int TileSet::get_next_source_id() const {
@@ -3655,6 +3655,11 @@ Array TileSet::compatibility_tilemap_map(int p_tile_id, Vector2i p_coords, bool 
 #endif // DISABLE_DEPRECATED
 
 bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
+	if (p_name == "flat_side_length") {
+		_set_hexagon_flat_side_length(p_value);
+		return true;
+	}
+
 	Vector<String> components = String(p_name).split("/", true, 2);
 
 #ifndef DISABLE_DEPRECATED
@@ -4000,6 +4005,11 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 bool TileSet::_get(const StringName &p_name, Variant &r_ret) const {
+	if (p_name == "flat_side_length") {
+		r_ret = _get_hexagon_flat_side_length();
+		return true;
+	}
+
 	Vector<String> components = String(p_name).split("/", true, 2);
 
 	if (components.size() == 2 && components[0].begins_with("occlusion_layer_") && components[0].trim_prefix("occlusion_layer_").is_valid_int()) {
@@ -4134,6 +4144,26 @@ bool TileSet::_get(const StringName &p_name, Variant &r_ret) const {
 
 void TileSet::_get_property_list(List<PropertyInfo> *p_list) const {
 	PropertyInfo property_info;
+
+	// Flat side length.
+	if (tile_shape == TILE_SHAPE_HEXAGON) {
+		int side_size;
+		if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
+			side_size = tile_size.y;
+		} else { // TILE_OFFSET_AXIS_VERTICAL
+			side_size = tile_size.x;
+		}
+		property_info = PropertyInfo(Variant::FLOAT, "flat_side_length", PROPERTY_HINT_RANGE, vformat("0.1,%f,0.1,suffix:px", side_size - 0.1), PROPERTY_USAGE_EDITOR);
+
+		// Push after tile_size
+		for (List<PropertyInfo>::Element *E = p_list->front(); E; E = E->next()) {
+			if (E->get().name == "tile_size") {
+				p_list->insert_after(E, property_info);
+				break;
+			}
+		}
+	}
+
 	// Rendering.
 	p_list->push_back(PropertyInfo(Variant::NIL, GNAME("Rendering", ""), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
 	for (int i = 0; i < occlusion_layers.size(); i++) {
@@ -4235,19 +4265,6 @@ void TileSet::_validate_property(PropertyInfo &p_property) const {
 		if (tile_shape == TILE_SHAPE_SQUARE) {
 			p_property.usage ^= PROPERTY_USAGE_READ_ONLY;
 		}
-	} else if (p_property.name == "flat_side_length") {
-		if (tile_shape != TILE_SHAPE_HEXAGON) {
-			p_property.usage ^= PROPERTY_USAGE_EDITOR;
-		} else {
-			p_property.hint = PROPERTY_HINT_RANGE;
-			int side_size;
-			if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
-				side_size = tile_size.y;
-			} else { // TILE_OFFSET_AXIS_VERTICAL
-				side_size = tile_size.x;
-			}
-			p_property.hint_string = vformat("0.1,%f,0.1,suffix:px", side_size - 0.1);
-		}
 	}
 }
 
@@ -4292,17 +4309,14 @@ void TileSet::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_tile_offset_axis"), &TileSet::get_tile_offset_axis);
 	ClassDB::bind_method(D_METHOD("set_tile_size", "size"), &TileSet::set_tile_size);
 	ClassDB::bind_method(D_METHOD("get_tile_size"), &TileSet::get_tile_size);
-	ClassDB::bind_method(D_METHOD("set_hexagon_flat_side_length", "flat_side_length"), &TileSet::set_hexagon_flat_side_length);
-	ClassDB::bind_method(D_METHOD("get_hexagon_flat_side_length"), &TileSet::get_hexagon_flat_side_length);
-	ClassDB::bind_method(D_METHOD("_set_hexagon_tile_overlap", "modifier"), &TileSet::_set_hexagon_tile_overlap);
-	ClassDB::bind_method(D_METHOD("_get_hexagon_tile_overlap"), &TileSet::_get_hexagon_tile_overlap);
+	ClassDB::bind_method(D_METHOD("set_hexagon_tile_overlap", "modifier"), &TileSet::set_hexagon_tile_overlap);
+	ClassDB::bind_method(D_METHOD("get_hexagon_tile_overlap"), &TileSet::get_hexagon_tile_overlap);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_shape", PROPERTY_HINT_ENUM, "Square,Isometric,Half-Offset Square,Hexagon"), "set_tile_shape", "get_tile_shape");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_layout", PROPERTY_HINT_ENUM, "Stacked,Stacked Offset,Stairs Right,Stairs Down,Diamond Right,Diamond Down"), "set_tile_layout", "get_tile_layout");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_offset_axis", PROPERTY_HINT_ENUM, "Horizontal Offset,Vertical Offset"), "set_tile_offset_axis", "get_tile_offset_axis");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "tile_size", PROPERTY_HINT_NONE, "suffix:px"), "set_tile_size", "get_tile_size");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "flat_side_length", PROPERTY_HINT_RANGE, "0.1,15.9,0.1,suffix:px", PROPERTY_USAGE_EDITOR), "set_hexagon_flat_side_length", "get_hexagon_flat_side_length");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "hexagon_tile_overlap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "_set_hexagon_tile_overlap", "_get_hexagon_tile_overlap");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "hexagon_tile_overlap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "set_hexagon_tile_overlap", "get_hexagon_tile_overlap");
 
 	// Rendering.
 	ClassDB::bind_method(D_METHOD("set_uv_clipping", "uv_clipping"), &TileSet::set_uv_clipping);
