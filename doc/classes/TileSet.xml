@@ -144,11 +144,6 @@
 				Returns the custom data layers count.
 			</description>
 		</method>
-		<method name="get_hexagon_tile_overlap" qualifiers="const">
-			<return type="float" />
-			<description>
-			</description>
-		</method>
 		<method name="get_navigation_layer_layer_value" qualifiers="const">
 			<return type="bool" />
 			<param index="0" name="layer_index" type="int" />
@@ -524,12 +519,6 @@
 			<param index="1" name="layer_type" type="int" enum="Variant.Type" />
 			<description>
 				Sets the type of the custom data layer identified by the given index.
-			</description>
-		</method>
-		<method name="set_hexagon_tile_overlap">
-			<return type="void" />
-			<param index="0" name="modifier" type="float" />
-			<description>
 			</description>
 		</method>
 		<method name="set_navigation_layer_layer_value">

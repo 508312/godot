@@ -409,17 +409,6 @@ Size2i TileSet::get_tile_size() const {
 	return tile_size;
 }
 
-void TileSet::set_hexagon_tile_overlap(float p_tile_overlap) {
-	hexagon_tile_overlap = p_tile_overlap;
-
-	terrain_bits_meshes_dirty = true;
-	tile_meshes_dirty = true;
-	emit_changed();
-}
-float TileSet::get_hexagon_tile_overlap() const {
-	return hexagon_tile_overlap;
-}
-
 void TileSet::set_hexagon_flat_side_length(float p_flat_side_length) {
 	int side_size;
 	if (tile_offset_axis == TILE_OFFSET_AXIS_HORIZONTAL) {
@@ -429,7 +418,7 @@ void TileSet::set_hexagon_flat_side_length(float p_flat_side_length) {
 	}
 
 	float overlap = (1 - p_flat_side_length / side_size) / 2;
-	set_hexagon_tile_overlap(overlap);
+	_set_hexagon_tile_overlap(overlap);
 }
 float TileSet::get_hexagon_flat_side_length() const {
 	int side_size;
@@ -439,6 +428,17 @@ float TileSet::get_hexagon_flat_side_length() const {
 		side_size = tile_size.x;
 	}
 	return (1 - hexagon_tile_overlap * 2) * side_size;
+}
+
+void TileSet::_set_hexagon_tile_overlap(float p_tile_overlap) {
+	hexagon_tile_overlap = p_tile_overlap;
+
+	terrain_bits_meshes_dirty = true;
+	tile_meshes_dirty = true;
+	emit_changed();
+}
+float TileSet::_get_hexagon_tile_overlap() const {
+	return hexagon_tile_overlap;
 }
 
 int TileSet::get_next_source_id() const {
@@ -4292,17 +4292,17 @@ void TileSet::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_tile_offset_axis"), &TileSet::get_tile_offset_axis);
 	ClassDB::bind_method(D_METHOD("set_tile_size", "size"), &TileSet::set_tile_size);
 	ClassDB::bind_method(D_METHOD("get_tile_size"), &TileSet::get_tile_size);
-	ClassDB::bind_method(D_METHOD("set_hexagon_tile_overlap", "modifier"), &TileSet::set_hexagon_tile_overlap);
-	ClassDB::bind_method(D_METHOD("get_hexagon_tile_overlap"), &TileSet::get_hexagon_tile_overlap);
 	ClassDB::bind_method(D_METHOD("set_hexagon_flat_side_length", "flat_side_length"), &TileSet::set_hexagon_flat_side_length);
 	ClassDB::bind_method(D_METHOD("get_hexagon_flat_side_length"), &TileSet::get_hexagon_flat_side_length);
+	ClassDB::bind_method(D_METHOD("_set_hexagon_tile_overlap", "modifier"), &TileSet::_set_hexagon_tile_overlap);
+	ClassDB::bind_method(D_METHOD("_get_hexagon_tile_overlap"), &TileSet::_get_hexagon_tile_overlap);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_shape", PROPERTY_HINT_ENUM, "Square,Isometric,Half-Offset Square,Hexagon"), "set_tile_shape", "get_tile_shape");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_layout", PROPERTY_HINT_ENUM, "Stacked,Stacked Offset,Stairs Right,Stairs Down,Diamond Right,Diamond Down"), "set_tile_layout", "get_tile_layout");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tile_offset_axis", PROPERTY_HINT_ENUM, "Horizontal Offset,Vertical Offset"), "set_tile_offset_axis", "get_tile_offset_axis");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "tile_size", PROPERTY_HINT_NONE, "suffix:px"), "set_tile_size", "get_tile_size");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "flat_side_length", PROPERTY_HINT_RANGE, "0.1,15.9,0.1,suffix:px", PROPERTY_USAGE_EDITOR), "set_hexagon_flat_side_length", "get_hexagon_flat_side_length");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "hexagon_tile_overlap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "set_hexagon_tile_overlap", "get_hexagon_tile_overlap");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "hexagon_tile_overlap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "_set_hexagon_tile_overlap", "_get_hexagon_tile_overlap");
 
 	// Rendering.
 	ClassDB::bind_method(D_METHOD("set_uv_clipping", "uv_clipping"), &TileSet::set_uv_clipping);
